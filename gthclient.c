@@ -1,7 +1,7 @@
 /*
  * Gothello daemon client library
  * Bart Massey <bart@cs.pdx.edu> 1999,2000,2001
- * $Id$
+ * $Id: gthclient.c,v 2.5 2001/11/28 23:25:13 bart Exp bart $
  *
  * Fixes and winsock support in
  * current version by Joe Parker <jparker@pdx.edu>
@@ -171,6 +171,9 @@ static void WSAperror(char *msg, int errorcd)
     case WSAETIMEDOUT:
       printf("Connection timed out.\n");
       break;
+    case WSAECONNRESET:
+      printf("Connection reset by peer.\n");
+      break;
     default:
       printf("Unknown error.\n");
       break;
@@ -191,27 +194,37 @@ static void get_move(char *pos) {
 
     switch(msg_code) {
     case 311:
-    case 313:
     case 321:
     case 322:
     case 325:
 	sscanf(msg_text, "%d %2s", &msg_serial, pos);
 	break;
+    case 313:
+	sscanf(msg_text, "%d %2s %d", &msg_serial, pos, &gth_opp_time);
+	break;
     case 315:
-    case 317:
 	sscanf(msg_text, "%d pass", &msg_serial);
 	strcpy(pos, ".p");
 	break;
+    case 317:
+	sscanf(msg_text, "%d pass %d", &msg_serial, &gth_opp_time);
+	strcpy(pos, ".p");
+	break;
     case 312:
-    case 314:
     case 323:
     case 324:
     case 326:
 	sscanf(msg_text, "%d ... %2s", &msg_serial, pos);
 	break;
+    case 314:
+	sscanf(msg_text, "%d ... %2s %d", &msg_serial, pos, &gth_opp_time);
+ 	break;
     case 316:
-    case 318:
 	sscanf(msg_text, "%d ... pass", &msg_serial);
+	strcpy(pos, ".p");
+	break;
+    case 318:
+	sscanf(msg_text, "%d ... pass %d", &msg_serial, &gth_opp_time);
 	strcpy(pos, ".p");
 	break;
     default:
@@ -543,9 +556,6 @@ enum gth_state gth_get_move(char *pos) {
   if ((msg_code >= 311 && msg_code <= 318) ||
       (msg_code >= 321 && msg_code <= 326)) {
     get_move(pos);
-    if (msg_code == 313 || msg_code == 314 ||
-       msg_code == 317 || msg_code == 318)
-      gth_opp_time = get_time();
   }
   switch(who) {
   case GTH_WHO_WHITE:
