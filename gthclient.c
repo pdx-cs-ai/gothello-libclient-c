@@ -20,7 +20,7 @@ static int server_base = 29057;
 static char buf[1024];
 static char *msg_text;
 static int msg_code;
-static int serial = 1;
+static int serial = 0;
 
 static void get_move(char *from, char *to) {
     int msg_serial;
@@ -250,6 +250,8 @@ enum aw_state aw_make_move(char *from, char *to) {
     return AW_STATE_ERROR;
   }
   sprintf(movebuf, "%.2s-%.2s", from, to);
+  if (who == AW_WHO_BLACK)
+    serial++;
   if (who == AW_WHO_WHITE)
     ellipses = " ...";
   result = fprintf(fsock_out, "%d%s %s\r", serial, ellipses, movebuf);
@@ -302,7 +304,6 @@ enum aw_state aw_make_move(char *from, char *to) {
     closeall();
     return AW_STATE_ERROR;
   }
-  serial++;
   return AW_STATE_CONTINUE;
 }
 
@@ -317,6 +318,8 @@ enum aw_state aw_get_move(char *from, char *to) {
     fprintf(stderr, "get_move: game over\n");
     return AW_STATE_ERROR;
   }
+  if (who == AW_WHO_BLACK)
+    serial++;
   result = get_msg();
   if (result == -1) {
     closeall();
