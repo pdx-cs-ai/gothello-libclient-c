@@ -1,4 +1,4 @@
-#include "libgame.h"
+#include "libgthgame.h"
 
 #include <assert.h>
 #include <unistd.h>
@@ -12,17 +12,17 @@
 #include <netdb.h>
 
 static char *client_version = "0.9";
-static enum gd_who who = GD_WHO_NONE;
+static enum gth_who who = GTH_WHO_NONE;
 static int sock;
 static FILE *fsock_in, *fsock_out;
-static int server_base = 29057;
+static int server_base = 29068;
 
 static char buf[1024];
 static char *msg_text;
 static int msg_code;
 static int serial = 0;
 
-static void get_move(char *from, char *to) {
+static void get_move(char *pos) {
     int msg_serial;
 
     switch(msg_code) {
@@ -31,14 +31,24 @@ static void get_move(char *from, char *to) {
     case 321:
     case 322:
     case 325:
-	sscanf(msg_text, "%d %2s-%2s", &msg_serial, from, to);
+	sscanf(msg_text, "%d %2s", &msg_serial, pos);
+	break;
+    case 315:
+    case 317:
+	sscanf(msg_text, "%d pass", &msg_serial);
+	strcpy(pos, ".p");
 	break;
     case 312:
     case 314:
     case 323:
     case 324:
     case 326:
-	sscanf(msg_text, "%d ... %2s-%2s", &msg_serial, from, to);
+	sscanf(msg_text, "%d ... %2s", &msg_serial, pos);
+	break;
+    case 316:
+    case 318:
+	sscanf(msg_text, "%d ... pass", &msg_serial);
+	strcpy(pos, ".p");
 	break;
     default:
 	fprintf(stderr,
@@ -86,31 +96,31 @@ static void closeall(void) {
   (void) close(sock);
 }
 
-static enum gd_who opponent(enum gd_who w) {
-  assert(w == GD_WHO_WHITE || w == GD_WHO_BLACK);
-  if (w == GD_WHO_WHITE)
-    return GD_WHO_BLACK;
-  return GD_WHO_WHITE;
+static enum gth_who opponent(enum gth_who w) {
+  assert(w == GTH_WHO_WHITE || w == GTH_WHO_BLACK);
+  if (w == GTH_WHO_WHITE)
+    return GTH_WHO_BLACK;
+  return GTH_WHO_WHITE;
 }
 
-int gd_time_controls = 0;
-int gd_white_time_control = 0;
-int gd_black_time_control = 0;
-int gd_my_time = 0;
-int gd_opp_time = 0;
+int gth_time_controls = 0;
+int gth_white_time_control = 0;
+int gth_black_time_control = 0;
+int gth_my_time = 0;
+int gth_opp_time = 0;
 
 static void get_time_controls(void) {
   int i;
   for (i = 0; i < strlen(msg_text); i++)
     if (isdigit(msg_text[i])) {
-      gd_white_time_control = atoi(&msg_text[i]);
+      gth_white_time_control = atoi(&msg_text[i]);
       while (isdigit(msg_text[i]))
 	i++;
       break;
     }
   for (; i < strlen(msg_text); i++)
     if (isdigit(msg_text[i])) {
-      gd_black_time_control = atoi(&msg_text[i]);
+      gth_black_time_control = atoi(&msg_text[i]);
       while (isdigit(msg_text[i]))
 	i++;
       break;
@@ -129,9 +139,9 @@ static int get_time(void) {
   return -1;
 }
 
-enum gd_who gd_winner = GD_WHO_NONE;
+enum gth_who gth_winner = GTH_WHO_NONE;
 
-int gd_start_game(enum gd_who side, char *host, int server) {
+int gth_start_game(enum gth_who side, char *host, int server) {
   struct sockaddr_in serv_addr;
   struct hostent *hostent;
   int result;
@@ -193,12 +203,12 @@ int gd_start_game(enum gd_who side, char *host, int server) {
   result = fprintf(fsock_out,
 		   "%s player %s\r",
 		   client_version,
-		   side == GD_WHO_WHITE ? "white" : "black");
+		   side == GTH_WHO_WHITE ? "white" : "black");
   (void)fflush(fsock_out);
   if (result == -1) {
     perror("start_game: fprintf");
     closeall();
-    return GD_STATE_ERROR;
+    return GTH_STATE_ERROR;
   }
   result = get_msg();
   if (result == -1) {
@@ -211,14 +221,14 @@ int gd_start_game(enum gd_who side, char *host, int server) {
     return -1;
   }
   if (msg_code == 101) {
-    gd_time_controls = 1;
+    gth_time_controls = 1;
     get_time_controls();
-    if (side == GD_WHO_WHITE) {
-      gd_my_time = gd_white_time_control;
-      gd_opp_time = gd_black_time_control;
+    if (side == GTH_WHO_WHITE) {
+      gth_my_time = gth_white_time_control;
+      gth_opp_time = gth_black_time_control;
     } else {
-      gd_my_time = gd_black_time_control;
-      gd_opp_time = gd_white_time_control;
+      gth_my_time = gth_black_time_control;
+      gth_opp_time = gth_white_time_control;
     }
   }
   result = get_msg();
@@ -226,8 +236,8 @@ int gd_start_game(enum gd_who side, char *host, int server) {
     closeall();
     return -1;
   }
-  if ((msg_code != 351 && side == GD_WHO_WHITE) ||
-      (msg_code != 352 && side == GD_WHO_BLACK)) {
+  if ((msg_code != 351 && side == GTH_WHO_WHITE) ||
+      (msg_code != 352 && side == GTH_WHO_BLACK)) {
     fprintf(stderr, "side failure %03d: %s\n", msg_code, msg_text);
     closeall();
     return -1;
@@ -236,151 +246,160 @@ int gd_start_game(enum gd_who side, char *host, int server) {
   return 0;
 }
 
-enum gd_state gd_make_move(char *from, char *to) {
+enum gth_state gth_make_move(char *pos) {
   char *ellipses = "";
   int result;
   char movebuf[6];
   
-  if (who == GD_WHO_NONE) {
+  if (who == GTH_WHO_NONE) {
     fprintf(stderr, "make_move: not initialized\n");
-    return GD_STATE_ERROR;
+    return GTH_STATE_ERROR;
   }
-  if (gd_winner != GD_WHO_NONE) {
+  if (gth_winner != GTH_WHO_NONE) {
     fprintf(stderr, "make_move: game over\n");
-    return GD_STATE_ERROR;
+    return GTH_STATE_ERROR;
   }
-  sprintf(movebuf, "%.2s-%.2s", from, to);
-  if (who == GD_WHO_BLACK)
+  sprintf(movebuf, "%.2s", pos);
+  if (who == GTH_WHO_BLACK)
     serial++;
-  if (who == GD_WHO_WHITE)
+  if (who == GTH_WHO_WHITE)
     ellipses = " ...";
   result = fprintf(fsock_out, "%d%s %s\r", serial, ellipses, movebuf);
   (void)fflush(fsock_out);
   if (result == -1) {
     perror("make_move: fprintf");
     closeall();
-    return GD_STATE_ERROR;
+    return GTH_STATE_ERROR;
   }
   result = get_msg();
   if (result == -1) {
     closeall();
-    return GD_STATE_ERROR;
+    return GTH_STATE_ERROR;
   }
   switch(msg_code) {
   case 201:
-    gd_winner = who;
+    gth_winner = who;
     break;
   case 202:
-    gd_winner = opponent(who);
+    gth_winner = opponent(who);
     break;
   case 203:
-    gd_winner = GD_WHO_OTHER;
+    gth_winner = GTH_WHO_OTHER;
     break;
   }
-  if (gd_winner != GD_WHO_NONE) {
+  if (gth_winner != GTH_WHO_NONE) {
     closeall();
-    return GD_STATE_DONE;
+    return GTH_STATE_DONE;
   }
   if (msg_code != 200 && msg_code != 207) {
     fprintf(stderr, "make_move: bad result code %03d: %s\n", msg_code, msg_text);
     closeall();
-    return GD_STATE_ERROR;
+    return GTH_STATE_ERROR;
   }
   if (msg_code == 207) {
-    gd_my_time = get_time();
-    if (gd_my_time == -1) {
+    gth_my_time = get_time();
+    if (gth_my_time == -1) {
       fprintf(stderr, "make_move: bad time info in %d: %s\n", msg_code, msg_text);
       closeall();
-      return GD_STATE_ERROR;
+      return GTH_STATE_ERROR;
     }
   }
   result = get_msg();
   if (result == -1) {
     closeall();
-    return GD_STATE_ERROR;
+    return GTH_STATE_ERROR;
   }
-  if (msg_code != 311 && msg_code != 312 && msg_code != 313 && msg_code != 314) {
+  if (!(msg_code >= 311 && msg_code <= 318)) {
     fprintf(stderr, "make_move: bad status code %03d: %s\n", msg_code, msg_text);
     closeall();
-    return GD_STATE_ERROR;
+    return GTH_STATE_ERROR;
   }
-  return GD_STATE_CONTINUE;
+  return GTH_STATE_CONTINUE;
 }
 
-enum gd_state gd_get_move(char *from, char *to) {
+enum gth_state gth_get_move(char *pos) {
   int result;
   
-  if (who == GD_WHO_NONE) {
+  if (who == GTH_WHO_NONE) {
     fprintf(stderr, "get_move: not initialized\n");
-    return GD_STATE_ERROR;
+    return GTH_STATE_ERROR;
   }
-  if (gd_winner != GD_WHO_NONE) {
+  if (gth_winner != GTH_WHO_NONE) {
     fprintf(stderr, "get_move: game over\n");
-    return GD_STATE_ERROR;
+    return GTH_STATE_ERROR;
   }
-  if (who == GD_WHO_WHITE)
+  if (who == GTH_WHO_WHITE)
     serial++;
   result = get_msg();
   if (result == -1) {
     closeall();
-    return GD_STATE_ERROR;
+    return GTH_STATE_ERROR;
   }
   if ((msg_code < 311 || msg_code > 326) && msg_code != 361 && msg_code != 362) {
     fprintf(stderr, "get_move: bad status code %03d: %s\n", msg_code, msg_text);
     closeall();
-    return GD_STATE_ERROR;
+    return GTH_STATE_ERROR;
   }
-  if ((who == GD_WHO_WHITE &&
-       (msg_code == 312 || msg_code == 314 || msg_code == 323 ||
+  if ((who == GTH_WHO_WHITE &&
+       (msg_code == 312 || msg_code == 314 ||
+	msg_code == 316 || msg_code == 318 ||
+	msg_code == 323 ||
 	msg_code == 324 || msg_code == 326)) ||
-      (who == GD_WHO_BLACK &&
-       (msg_code == 311 || msg_code == 313 || msg_code == 321 ||
+      (who == GTH_WHO_BLACK &&
+       (msg_code == 311 || msg_code == 313 ||
+	msg_code == 315 || msg_code == 317 ||
+	msg_code == 321 ||
 	msg_code == 322 || msg_code == 325))) {
     fprintf(stderr, "get_move: status code from wrong side %03d: %s\n", msg_code, msg_text);
     closeall();
-    return GD_STATE_ERROR;
+    return GTH_STATE_ERROR;
   }
   if ((msg_code >= 311 && msg_code <= 314) ||
       (msg_code >= 321 && msg_code <= 326)) {
-    get_move(from, to);
-    if (msg_code == 313 || msg_code == 314)
-      gd_opp_time = get_time();
+    get_move(pos);
+    if (msg_code == 313 || msg_code == 314 ||
+	msg_code == 316 || msg_code == 317)
+      gth_opp_time = get_time();
   }
   switch(who) {
-  case GD_WHO_WHITE:
+  case GTH_WHO_WHITE:
     switch(msg_code) {
     case 311:
     case 313:
-      return GD_STATE_CONTINUE;
+    case 315:
+    case 317:
+      return GTH_STATE_CONTINUE;
     case 321:
     case 361:
-      gd_winner = GD_WHO_BLACK;
-      return GD_STATE_DONE;
+      gth_winner = GTH_WHO_BLACK;
+      return GTH_STATE_DONE;
     case 322:
     case 362:
-      gd_winner = GD_WHO_WHITE;
-      return GD_STATE_DONE;
+      gth_winner = GTH_WHO_WHITE;
+      return GTH_STATE_DONE;
     case 325:
-      gd_winner = GD_WHO_OTHER;
-      return GD_STATE_DONE;
+      gth_winner = GTH_WHO_OTHER;
+      return GTH_STATE_DONE;
     }
     break;
-  case GD_WHO_BLACK:
+  case GTH_WHO_BLACK:
     switch(msg_code) {
     case 312:
     case 314:
-      return GD_STATE_CONTINUE;
+    case 316:
+    case 318:
+      return GTH_STATE_CONTINUE;
     case 323:
     case 362:
-      gd_winner = GD_WHO_WHITE;
-      return GD_STATE_DONE;
+      gth_winner = GTH_WHO_WHITE;
+      return GTH_STATE_DONE;
     case 324:
     case 361:
-      gd_winner = GD_WHO_BLACK;
-      return GD_STATE_DONE;
+      gth_winner = GTH_WHO_BLACK;
+      return GTH_STATE_DONE;
     case 326:
-      gd_winner = GD_WHO_OTHER;
-      return GD_STATE_DONE;
+      gth_winner = GTH_WHO_OTHER;
+      return GTH_STATE_DONE;
     }
     break;
   default:
@@ -388,5 +407,5 @@ enum gd_state gd_get_move(char *from, char *to) {
   }
   fprintf(stderr, "get_move: unknown status code %03d: %s\n", msg_code, msg_text);
   closeall();
-  return GD_STATE_ERROR;
+  return GTH_STATE_ERROR;
 }
