@@ -318,7 +318,7 @@ enum gd_state gd_get_move(char *from, char *to) {
     fprintf(stderr, "get_move: game over\n");
     return GD_STATE_ERROR;
   }
-  if (who == GD_WHO_BLACK)
+  if (who == GD_WHO_WHITE)
     serial++;
   result = get_msg();
   if (result == -1) {
