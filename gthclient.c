@@ -1,4 +1,4 @@
-#include "libgthgame.h"
+#include "gthclient.h"
 
 #include <assert.h>
 #include <unistd.h>
