@@ -259,6 +259,8 @@ enum gth_state gth_make_move(char *pos) {
     fprintf(stderr, "make_move: game over\n");
     return GTH_STATE_ERROR;
   }
+  if (!strcmp(pos, ".p"))
+      pos = "pass";
   sprintf(movebuf, "%.2s", pos);
   if (who == GTH_WHO_BLACK)
     serial++;
