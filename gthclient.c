@@ -1,7 +1,7 @@
 /*
  * Gothello daemon client library
  * Bart Massey <bart@cs.pdx.edu> 1999,2000,2001
- * $rcsid$
+ * $Id$
  *
  * Fixes and winsock support in
  * current version by Joe Parker <jparker@pdx.edu>
