@@ -44,10 +44,11 @@ Time control tracking is performed by the client,
 which caches a bunch of state information about the game
 in progress in global variables.
 
-There is a manual page available in a variety of formats in
-the man subdirectory of this directory.  Note that the gthclient
-code is essentially untested, and I currently have no client
-with which to exercise it.  There are likely to be bugs for
-a bit, until I have remedied this situation.
+There is a [manual page](man/libgthgame.3.html) available in
+a variety of formats in the [`man`](man/) subdirectory of this
+directory.  Note that this client library is essentially
+untested, and I currently have no client with which to
+exercise it.  There are likely to be bugs for a bit, until I
+have remedied this situation.
 
 Let me know if there are questions or bugs.
