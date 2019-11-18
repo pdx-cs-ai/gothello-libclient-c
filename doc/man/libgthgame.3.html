@@ -1,0 +1,120 @@
+<html>
+<head>
+<meta name="Content-Style" content="text/css">
+</head>
+<body>
+<a href="#NAME">NAME</a><br>
+<a href="#SYNOPSIS">SYNOPSIS</a><br>
+<a href="##include "gthgame.h"">#include "gthgame.h"</a><br>
+<a href="#enum gth_who gth_winner">enum gth_who gth_winner</a><br>
+<a href="#int gth_time_controls">int gth_time_controls</a><br>
+<a href="#int gth_white_time_control">int gth_white_time_control</a><br>
+<a href="#int gth_black_time_control">int gth_black_time_control</a><br>
+<a href="#int gth_my_time">int gth_my_time</a><br>
+<a href="#int gth_opp_time">int gth_opp_time</a><br>
+<a href="#DESCRIPTION">DESCRIPTION</a><br>
+<a href="#ERRORS">ERRORS</a><br>
+<!-- Creator     : groff version 1.15  -->
+<!-- CreationDate: Sun Nov 25 21:20:29 2001
+ -->
+<!-- Total number of pages: 2 -->
+<!-- Page: 1 -->
+<!-- left  margin: 100 -->
+<!-- right margin: 750 -->
+<a name="NAME"></a><h2>NAME</h2><p><font size=3>gth_start_game, gth_make_move, gth_get_move, gth_winner, gth_time_controls, gth_white_time_control, gth_black_time_control, gth_my_time, gth_opp_time - C interface to Gothello game daemon</p>
+<a name="SYNOPSIS"></a><h2>SYNOPSIS</h2><a name="#include "gthgame.h""></a><h2>#include "gthgame.h"</h2><p><font size=3><B>int gth_start_game(enum gth_who</B> <font size=3><I>side</I><font size=3><B>, char *</B><font size=3><I>host</I><font size=3><B>, int</B> <font size=3><I>server</I><font size=3><B>)</p>
+</B><p><font size=3><B>enum gth_state gth_make_move(char *</B><font size=3><I>pos</I><font size=3><B>)</p>
+</B><p><font size=3><B>enum gth_state gth_get_move(char *</B><font size=3><I>pos</I><font size=3><B>)</p>
+</B><a name="enum gth_who gth_winner"></a><h2>enum gth_who gth_winner</h2><a name="int gth_time_controls"></a><h2>int gth_time_controls</h2><a name="int gth_white_time_control"></a><h2>int gth_white_time_control</h2><a name="int gth_black_time_control"></a><h2>int gth_black_time_control</h2><a name="int gth_my_time"></a><h2>int gth_my_time</h2><a name="int gth_opp_time"></a><h2>int gth_opp_time</h2><a name="DESCRIPTION"></a><h2>DESCRIPTION</h2><p><font size=3>The <font size=3><B>gth_start_game()</B> <font size=3>function attempts to connect to the Gothello server with the given <font size=3><I>server</I> <font size=3>number on the given <font size=3><I>host</I><font size=3>, and start a game as side <font size=3><I>side</I> <font size=3>as described by the enumeration <font size=3><B>enum gth_who</B><font size=3>. <font size=3><B>gth_start_game()</B> <font size=3>will not return until the client side's first opportunity to move in the set-up game.</p>
+<p><font size=3>The <font size=3><B>gth_make_move()</B> <font size=3>function attempts to make the given move on the Gothello server, where <font size=3><I>pos</I> <font size=3>is a two- character lowercase algebraic coordinate strings on the Gothello board (in the range <font size=3><B>a1</B><font size=3>...<font size=3><B>e5</B><font size=3>), or the string ".p" indicating a pass. It returns an <font size=3><B>enum gth_state</B> <font size=3>indicating whether the game is over, and if so, which side has won.</p>
+<p><font size=3>The <font size=3><B>gth_get_move()</B> <font size=3>function attempts to retrieve an opponent move from the Gothello server, where <font size=3><I>pos</I> <font size=3>is the algebraic coordinate of the resulting move, or pass as above. The <font size=3><I>pos</I> <font size=3>argument must be pointers to two-charac- ter strings (i.e. 3 character area), whose contents will be filled in by the call. <font size=3><B>gth_get_move()</B> <font size=3>returns an <font size=3><B>enum gth_state</B> <font size=3>indicating whether the game is over, and if so, which side has won.</p>
+<p><font size=3>A number of globally accessible variables are side-effected by the functions, and contain useful state information about the game in progress.</p>
+
+<table width="100%"  rules="none"  frame="none"  cols="5">
+<tr valign="top" align="left">
+<td valign="top" align="left"  width="1.8462%">
+</td>
+<td valign="top" align="left"  width="24.1538%">
+<p><font size=3>enum gth_who gth_winner; int gth_time_controls;<br>
+int gth_white_time_control; int gth_black_time_control;<br>
+int gth_my_time;</p>
+</td>
+<td valign="top" align="left"  width="12.7692%">
+</td>
+<td valign="top" align="left"  width="27.8462%">
+<p><font size=3>/* winning side at game end */<br>
+/* 1 if game is time-controlled */<br>
+/* total time in secs */</p>
+<p><font size=3>/* secs remaining */</p>
+</td>
+<td valign="top" align="left"  width="33.3846%">
+</td>
+</tr>
+<tr valign="top" align="left">
+<td valign="top" align="left"  width="1.8462%">
+</td>
+<td valign="top" align="left"  width="24.1538%">
+<p><font size=3>int gth_opp_time;</p>
+</td>
+<td valign="top" align="left"  width="12.7692%">
+</td>
+<td valign="top" align="left"  width="27.8462%">
+</td>
+<td valign="top" align="left"  width="33.3846%">
+</td>
+</tr>
+</table>
+<p><font size=3>The <font size=3><B>gth_who</B> <font size=3>enum is defined in <font size=3><B>"libgame.h"</B> <font size=3>as follows:</p>
+
+<table width="100%"  rules="none"  frame="none"  cols="5">
+<tr valign="top" align="left">
+<td valign="top" align="left"  width="1.8462%">
+</td>
+<td valign="top" align="left"  width="22.3077%">
+<p><font size=3>GTH_WHO_NONE=0,<br>
+GTH_WHO_WHITE=1,<br>
+GTH_WHO_BLACK=2,<br>
+GTH_WHO_OTHER=3,</p>
+</td>
+<td valign="top" align="left"  width="14.6154%">
+</td>
+<td valign="top" align="left"  width="20.1538%">
+<p><font size=3>/* nobody */<br>
+/* white player */<br>
+/* black player */<br>
+/* some other player */</p>
+</td>
+<td valign="top" align="left"  width="41.0769%">
+</td>
+</tr>
+</table>
+<p><font size=3>The <font size=3><B>gth_state</B> <font size=3>enum is defined in <font size=3><B>"libgame.h"</B> <font size=3>as follows:</p>
+
+<table width="100%"  rules="none"  frame="none"  cols="5">
+<tr valign="top" align="left">
+<td valign="top" align="left"  width="1.8462%">
+</td>
+<td valign="top" align="left"  width="28.3077%">
+<p><font size=3>GTH_STATE_ERROR=-1,<br>
+GTH_STATE_CONTINUE=0,<br>
+GTH_STATE_DONE=1,</p>
+</td>
+<td valign="top" align="left"  width="8.6154%">
+</td>
+<td valign="top" align="left"  width="21.3846%">
+<p><font size=3>/* something is wrong */<br>
+/* game continues */<br>
+/* game over */</p>
+</td>
+<td valign="top" align="left"  width="39.8462%">
+</td>
+</tr>
+</table>
+<br>
+<!-- Page: 2  -->
+<!-- left  margin: 100 -->
+<!-- right margin: 750 -->
+<a name="ERRORS"></a><h2>ERRORS</h2><p><font size=3>The <font size=3><B>gth_start_game()</B> <font size=3>function returns 0 on success, and -1 on error. The <font size=3><B>gth_make_move()</B> <font size=3>and <font size=3><B>gth_get_move()</B> <font size=3>functions return <font size=3><B>GTH_STATE_ERROR</B> <font size=3>if an error is discovered in the arguments or the interac- tion with the server is unsuccessful.<br>
+</p>
+</body>
+</html>

@@ -1,0 +1,132 @@
+
+
+
+LIBGTHGAME(3)      Portland State U. CS 441/541     LIBGTHGAME(3)
+
+
+NNAAMMEE
+       gth_start_game,  gth_make_move,  gth_get_move, gth_winner,
+       gth_time_controls,                 gth_white_time_control,
+       gth_black_time_control,   gth_my_time,  gth_opp_time  -  C
+       interface to Gothello game daemon
+
+SSYYNNOOPPSSIISS
+       ##iinncclluuddee ""ggtthhggaammee..hh""
+
+       iinntt ggtthh__ssttaarrtt__ggaammee((eennuumm  ggtthh__wwhhoo  _s_i_d_e,,  cchhaarr  **_h_o_s_t,,  iinntt
+       _s_e_r_v_e_r))
+
+       eennuumm ggtthh__ssttaattee ggtthh__mmaakkee__mmoovvee((cchhaarr **_p_o_s))
+
+       eennuumm ggtthh__ssttaattee ggtthh__ggeett__mmoovvee((cchhaarr **_p_o_s))
+
+       eennuumm ggtthh__wwhhoo ggtthh__wwiinnnneerr
+
+       iinntt ggtthh__ttiimmee__ccoonnttrroollss
+
+       iinntt ggtthh__wwhhiittee__ttiimmee__ccoonnttrrooll
+
+       iinntt ggtthh__bbllaacckk__ttiimmee__ccoonnttrrooll
+
+       iinntt ggtthh__mmyy__ttiimmee
+
+       iinntt ggtthh__oopppp__ttiimmee
+
+
+DDEESSCCRRIIPPTTIIOONN
+       The  ggtthh__ssttaarrtt__ggaammee(())  function attempts to connect to the
+       Gothello server with the given _s_e_r_v_e_r number on the  given
+       _h_o_s_t,  and  start  a game as side _s_i_d_e as described by the
+       enumeration  eennuumm  ggtthh__wwhhoo.    ggtthh__ssttaarrtt__ggaammee(())  will  not
+       return  until  the client side's first opportunity to move
+       in the set-up game.
+
+       The ggtthh__mmaakkee__mmoovvee(()) function attempts to  make  the  given
+       move  on the Gothello server, where _p_o_s is a two-character
+       lowercase algebraic coordinate  strings  on  the  Gothello
+       board  (in the range aa11...ee55), or the string ".p" indicat-
+       ing a pass.   It  returns  an  eennuumm  ggtthh__ssttaattee  indicating
+       whether the game is over, and if so, which side has won.
+
+       The  ggtthh__ggeett__mmoovvee(()) function attempts to retrieve an oppo-
+       nent move from the Gothello server, where _p_o_s is the alge-
+       braic  coordinate of the resulting move, or pass as above.
+       The _p_o_s argument must be pointers to two-character strings
+       (i.e.  3 character area), whose contents will be filled in
+       by the call.  ggtthh__ggeett__mmoovvee(())  returns  an  eennuumm  ggtthh__ssttaattee
+       indicating whether the game is over, and if so, which side
+       has won.
+
+       A  number  of  globally  accessible  variables  are  side-
+
+
+
+GTHD                    November 25, 2001                       1
+
+
+
+
+
+LIBGTHGAME(3)      Portland State U. CS 441/541     LIBGTHGAME(3)
+
+
+       effected by the functions, and contain useful state infor-
+       mation about the game in progress.
+
+         enum gth_who gth_winner;                /* winning side at game end */
+         int gth_time_controls;                  /* 1 if game is time-controlled */
+         int gth_white_time_control;             /* total time in secs */
+         int gth_black_time_control;
+         int gth_my_time;                        /* secs remaining */
+         int gth_opp_time;
+
+
+       The ggtthh__wwhhoo enum is defined in ""lliibbggaammee..hh"" as follows:
+
+         GTH_WHO_NONE=0,                         /* nobody */
+         GTH_WHO_WHITE=1,                        /* white player */
+         GTH_WHO_BLACK=2,                        /* black player */
+         GTH_WHO_OTHER=3,                        /* some other player */
+
+
+       The ggtthh__ssttaattee enum is defined in ""lliibbggaammee..hh"" as follows:
+
+         GTH_STATE_ERROR=-1,                     /* something is wrong */
+         GTH_STATE_CONTINUE=0,                   /* game continues */
+         GTH_STATE_DONE=1,                       /* game over */
+
+
+EERRRROORRSS
+       The ggtthh__ssttaarrtt__ggaammee(()) function returns 0 on success, and -1
+       on  error.   The  ggtthh__mmaakkee__mmoovvee(()) and ggtthh__ggeett__mmoovvee(()) func-
+       tions return GGTTHH__SSTTAATTEE__EERRRROORR if an error is discovered  in
+       the arguments or the interaction with the server is unsuc-
+       cessful.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+GTHD                    November 25, 2001                       2
+
+

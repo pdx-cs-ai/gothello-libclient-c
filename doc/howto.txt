@@ -1,0 +1,47 @@
+How To: Using the C interface to the Gothello daemon
+Bart Massey 2001/11/26
+
+The C client "library" for the Gothello daemon is a standard
+C module including .c and .h files.  You will want to
+include gthclient.h in your C or C++ program, and link
+against gthclient.o.  The provided gthclient.o is for an x86
+Linux system with ancient libraries: you will probably want
+to recompile gthclient.c for your environment before use.
+
+If you're using C++, don't forget that you need to do
+choose exactly one of the following two options:
+1) Compile gthclient.c with the C++ compiler
+2) Compile gthclient.c with the C compiler, then include
+   gthclient.h using the extern syntax, i.e.
+     extern "C" {
+     #include "gthclient.h"
+     }
+Failure to do one of these (or doing both) will lead to
+confusing error messages.
+
+In brief, the client stubs are used by calling
+gth_start_game() which automatically connects to the
+specified server on the specified host as the specified
+player.  (See the documentation on running a Gothello game
+for details.)  The code then handles the details of making
+moves and getting moves from the server, using the
+gth_make_move() and gth_get_move() functions.  These accept
+and return move strings: be careful, as there are a couple
+of bits of funny business here.  First, a pass is
+represented as ".p" on input and output.  Second, the string
+returned by gth_get_move() is simply written into the given
+pointer: it needs to be pointing at 3 or more writable bytes
+(2 for the string plus 1 for the null terminator) or you are
+likely to trash memory.
+
+Time control tracking is performed by the client,
+which caches a bunch of state information about the game
+in progress in global variables.
+
+There is a manual page available in a variety of formats in
+the man subdirectory of this directory.  Note that the gthclient
+code is essentially untested, and I currently have no client
+with which to exercise it.  There are likely to be bugs for
+a bit, until I have remedied this situation.
+
+Let me know if there are questions or bugs.

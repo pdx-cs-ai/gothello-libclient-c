@@ -1,0 +1,107 @@
+.\" Bart Massey 2000
+.\" Formatting based on materials
+.\" Copyright 1993 David Metcalfe (david@prism.demon.co.uk)
+.TH LIBGTHGAME 3  "November 25, 2001" "GTHD" "Portland State U. CS 441/541"
+.SH NAME
+gth_start_game, gth_make_move, gth_get_move, gth_winner, \
+gth_time_controls, gth_white_time_control, \
+gth_black_time_control, gth_my_time, gth_opp_time \- \
+C interface to Gothello game daemon
+.SH SYNOPSIS
+.sp
+\fB#include "gthgame.h"\fP
+.sp
+.BI "int gth_start_game(enum gth_who " side ", char *"  host ", int " server ")"
+.sp
+.BI "enum gth_state gth_make_move(char *" pos ")"
+.sp
+.BI "enum gth_state gth_get_move(char *" pos ")"
+.sp
+.BI "enum gth_who gth_winner"
+.sp
+.BI "int gth_time_controls"
+.sp
+.BI "int gth_white_time_control"
+.sp
+.BI "int gth_black_time_control"
+.sp
+.BI "int gth_my_time"
+.sp
+.BI "int gth_opp_time"
+.sp
+.SH DESCRIPTION
+The \fBgth_start_game()\fP function attempts to connect
+to the Gothello server with the given \fIserver\fP number
+on the given \fIhost\fP, and start a game
+as side \fPside\fP as described by the enumeration
+\fBenum gth_who\fP.   \fBgth_start_game()\fP will
+not return until the client side's first opportunity
+to move in the set-up game.
+.PP
+The \fBgth_make_move()\fP function attempts to make
+the given move on the Gothello server, where \fIpos\fP is
+a two-character lowercase algebraic coordinate strings
+on the Gothello board (in the range \fBa1\fP...\fBe5\fP),
+or the string ".p" indicating a pass.
+It returns an \fBenum gth_state\fP indicating whether the game
+is over, and if so, which side has won.
+.PP
+The \fBgth_get_move()\fP function attempts to retrieve
+an opponent move from the Gothello server, where \fIpos\fP is
+the algebraic coordinate of the resulting
+move, or pass as above.  The \fIpos\fP argument must be
+pointers to two-character strings (i.e. 3 character area), whose contents
+will be filled in by the call.
+\fBgth_get_move()\fP returns an \fBenum gth_state\fP indicating whether the game
+is over, and if so, which side has won.
+.PP
+A number of globally accessible variables are side-effected
+by the functions, and contain useful state information about
+the game in progress.
+.sp
+.ta 8n 16n 40n
+.RS 2n
+.nf
+enum gth_who gth_winner;		/* winning side at game end */
+int gth_time_controls;		/* 1 if game is time-controlled */
+int gth_white_time_control;	/* total time in secs */
+int gth_black_time_control;
+int gth_my_time;			/* secs remaining */
+int gth_opp_time;
+.fi
+.RE
+.sp
+.PP
+The \fBgth_who\fP enum is defined in \fB"libgame.h"\fP
+as follows:
+.sp
+.ta 8n 40n
+.RS 2n
+.nf
+GTH_WHO_NONE=0,	/* nobody */
+GTH_WHO_WHITE=1,	/* white player */
+GTH_WHO_BLACK=2,	/* black player */
+GTH_WHO_OTHER=3,	/* some other player */
+.fi
+.RE
+.sp
+.PP
+The \fBgth_state\fP enum is defined in \fB"libgame.h"\fP
+as follows:
+.sp
+.ta 8n 24n 40n
+.RS 2n
+.nf
+GTH_STATE_ERROR=-1,		/* something is wrong */
+GTH_STATE_CONTINUE=0,		/* game continues */
+GTH_STATE_DONE=1,		/* game over */
+.fi
+.RE
+.sp
+.SH "ERRORS"
+The \fBgth_start_game()\fP function returns 0
+on success, and -1 on error.  The \fBgth_make_move()\fP
+and \fBgth_get_move()\fP functions return
+\fBGTH_STATE_ERROR\fP if an error is discovered in
+the arguments or the interaction with the server is
+unsuccessful.
