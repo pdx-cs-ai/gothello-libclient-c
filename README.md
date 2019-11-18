@@ -44,7 +44,7 @@ Time control tracking is performed by the client,
 which caches a bunch of state information about the game
 in progress in global variables.
 
-There is a [manual page](http://htmlpreview.github.io/?https://github.com/pdx-cs-ai/gothello-libclient-c/man/libgthgame.3.html) available in
+There is a [manual page](http://htmlpreview.github.io/?https://github.com/pdx-cs-ai/gothello-libclient-c/master/man/libgthgame.3.html) available in
 a variety of formats in the [`man`](man/) subdirectory of this
 directory.  Note that this client library is essentially
 untested, and I currently have no client with which to
