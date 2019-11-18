@@ -1,7 +1,7 @@
 /*
  * Gothello daemon client library
  * Bart Massey <bart@cs.pdx.edu> 1999,2000,2001
- * $Id: gthclient.c,v 2.6 2001/12/02 07:33:46 bart Exp bart $
+ * $Id: gthclient.c,v 2.7 2001/12/06 02:22:47 bart Exp $
  *
  * Fixes and winsock support in
  * current version by Joe Parker <jparker@pdx.edu>
