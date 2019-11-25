@@ -49,7 +49,7 @@ static FILE *fsock_in, *fsock_out;
 #endif
 
 
-static char *client_version = "0.9";
+static char *client_version = "0.9.1";
 static enum gth_who who = GTH_WHO_NONE;
 static int server_base = 29068;
 
